@@ -1,1 +1,2 @@
-# dropsland-dApp
+# Dropsland mobile app
+

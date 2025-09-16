@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/empty-state"
 import { TokenBuyDrawer } from "@/components/token-buy-drawer"
-import { TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react"
+import { WalletInfo } from "@/components/wallet-info"
+import { ArtistTokenInfo } from "@/components/artist-token-info"
+import { TrendingUp, DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Coins } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import type { Profile, Holding, Transaction, ArtistToken } from "@/lib/types"
@@ -173,6 +175,155 @@ export default function WalletPage() {
       <Header />
       <main className="py-6 px-4">
         <div className="space-y-6">
+          {/* Stellar Wallet Info */}
+          {profile && <WalletInfo userId={profile.user_id} />}
+          
+          {/* Artist Token Info (for DJs only) */}
+          {profile && <ArtistTokenInfo userId={profile.user_id} />}
+          
+          {/* Debug: Issue Token Button (for DJs) */}
+          {profile && profile.role === "DJ" && (
+            <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Coins className="h-5 w-5" />
+                  <span>Issue Token on Stellar</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Click the button below to issue your artist token on the Stellar blockchain.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={async () => {
+                        try {
+                          console.log('Step 1: Ensuring token exists...')
+                          const ensureResponse = await fetch('/api/artist/ensure-token', { method: 'POST' })
+                          const ensureResult = await ensureResponse.json()
+                          console.log('Ensure result:', ensureResult)
+                          
+                          console.log('Step 2: Attempting to issue token...')
+                          const response = await fetch('/api/artist/fund-and-issue', { method: 'POST' })
+                          const result = await response.json()
+                          console.log('Issue result:', result)
+                          
+                          if (result.success) {
+                            alert('🎉 Token successfully issued on Stellar blockchain!')
+                          } else if (result.manualFunding) {
+                            const message = `⚠️ Automatic funding failed. Manual funding needed:\n\n` +
+                              `1. Fund Issuer: ${result.manualFunding.issuer}\n` +
+                              `2. Fund Distributor: ${result.manualFunding.distributor}\n\n` +
+                              `After funding both accounts, try "Issue Token" again.`
+                            alert(message)
+                            console.log('Manual funding URLs:', result.manualFunding)
+                          } else {
+                            alert('❌ Error: ' + (result.error || 'Failed to issue token'))
+                          }
+                        } catch (error) {
+                          console.error('Issue token error:', error)
+                          alert('Error issuing token')
+                        }
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Issue Token on Stellar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          console.log('Ensuring artist token exists...')
+                          const response = await fetch('/api/artist/ensure-token', { method: 'POST' })
+                          const result = await response.json()
+                          console.log('Ensure token result:', result)
+                          alert('Check console - token ensure result')
+                        } catch (error) {
+                          console.error('Ensure token error:', error)
+                        }
+                      }}
+                    >
+                      Ensure Token
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/artist/check-funding')
+                          const result = await response.json()
+                          console.log('Funding status:', result)
+                          
+                          if (result.funding) {
+                            const status = result.funding.bothFunded ? 
+                              '✅ Both accounts are funded and ready!' :
+                              `⚠️ Funding Status:\n- Issuer: ${result.funding.issuerFunded ? '✅' : '❌'}\n- Distributor: ${result.funding.distributorFunded ? '✅' : '❌'}`
+                            alert(status)
+                          } else {
+                            alert('Error checking funding status')
+                          }
+                        } catch (error) {
+                          console.error('Funding check error:', error)
+                          alert('Error checking funding')
+                        }
+                      }}
+                    >
+                      Check Funding
+                    </Button>
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/debug/stellar-assets')
+                            const result = await response.json()
+                            console.log('=== DEBUG DATA ===')
+                            console.log('Current Profile:', result.currentProfile)
+                            console.log('Artist Tokens:', result.artistTokens)
+                            console.log('Stellar Assets:', result.stellarAssets)
+                            console.log('==================')
+                            
+                            if (result.stellarAssets.count === 0) {
+                              alert('❌ No Stellar assets found! You need to run the database migration: scripts/006_create_artist_stellar_assets.sql')
+                            } else {
+                              alert('✅ Found ' + result.stellarAssets.count + ' stellar assets. Check console for details.')
+                            }
+                          } catch (error) {
+                            console.error('Debug error:', error)
+                            alert('Error getting debug data')
+                          }
+                        }}
+                      >
+                        Debug Data
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            console.log('Creating token listing...')
+                            const response = await fetch('/api/artist/create-listing', { method: 'POST' })
+                            const result = await response.json()
+                            console.log('Create listing result:', result)
+                            
+                            if (result.success) {
+                              alert(`✅ Token listing created!\n\n${result.listing.token.symbol}: ${result.listing.priceXlm} XLM per token\nAvailable: ${result.listing.availableSupply} tokens\n\nFans can now buy your tokens on Stellar!`)
+                            } else {
+                              alert('❌ Error: ' + (result.error || 'Failed to create listing'))
+                            }
+                          } catch (error) {
+                            console.error('Create listing error:', error)
+                            alert('Error creating listing')
+                          }
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Create Token Listing
+                      </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {/* Portfolio Overview */}
           <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
             <CardHeader>
@@ -293,10 +444,10 @@ export default function WalletPage() {
                           </div>
                           <div className="text-right">
                             <div className="font-semibold text-sm">
-                              {transaction.type === "BUY" ? "-" : "+"}${transaction.total.toFixed(2)}
+                              {transaction.type === "BUY" ? "-" : "+"}${((transaction as any).total || 0).toFixed(2)}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {transaction.quantity.toFixed(1)} @ ${transaction.unit_price.toFixed(2)}
+                              {((transaction as any).quantity || 0).toFixed(1)} @ ${((transaction as any).unit_price || 0).toFixed(2)}
                             </div>
                           </div>
                         </div>

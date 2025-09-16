@@ -1,4 +1,4 @@
-import { Keypair, Networks } from '@stellar/stellar-sdk';
+import { Keypair, Networks, Asset, Operation, TransactionBuilder, BASE_FEE } from '@stellar/stellar-sdk';
 import Server from '@stellar/stellar-sdk';
 import crypto from 'crypto';
 
@@ -142,4 +142,273 @@ export function createStellarServer() {
  */
 export function getNetworkPassphrase(): string {
   return STELLAR_NETWORK === 'mainnet' ? Networks.PUBLIC : Networks.TESTNET;
+}
+
+// ============================================================================
+// MARKETPLACE FUNCTIONS FOR TOKEN TRADING
+// ============================================================================
+
+/**
+ * Create a trustline for a fan to hold an artist's token
+ */
+export async function createTrustline(
+  fanSecretKey: string,
+  assetCode: string,
+  issuerPublicKey: string,
+  limit?: string
+): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+  try {
+    const server = createStellarServer();
+    const fanKeypair = Keypair.fromSecret(fanSecretKey);
+    const fanAccount = await server.loadAccount(fanKeypair.publicKey());
+    
+    // Create the asset
+    const asset = new Asset(assetCode, issuerPublicKey);
+    
+    // Build transaction to create trustline
+    const transaction = new TransactionBuilder(fanAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: getNetworkPassphrase(),
+    })
+      .addOperation(Operation.changeTrust({
+        asset: asset,
+        limit: limit || undefined, // undefined = no limit
+      }))
+      .setTimeout(30)
+      .build();
+    
+    // Sign and submit transaction
+    transaction.sign(fanKeypair);
+    const result = await server.submitTransaction(transaction);
+    
+    return {
+      success: true,
+      transactionHash: result.hash
+    };
+  } catch (error) {
+    console.error('Error creating trustline:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Check if an account has a trustline for a specific asset
+ */
+export async function hasTrustline(
+  accountPublicKey: string,
+  assetCode: string,
+  issuerPublicKey: string
+): Promise<boolean> {
+  try {
+    const server = createStellarServer();
+    const account = await server.loadAccount(accountPublicKey);
+    
+    // Check if account has trustline for this asset
+    const trustline = account.balances.find((balance: any) => 
+      balance.asset_type !== 'native' &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === issuerPublicKey
+    );
+    
+    return !!trustline;
+  } catch (error) {
+    console.error('Error checking trustline:', error);
+    return false;
+  }
+}
+
+/**
+ * Get token balance for a specific asset
+ */
+export async function getTokenBalance(
+  accountPublicKey: string,
+  assetCode: string,
+  issuerPublicKey: string
+): Promise<number> {
+  try {
+    const server = createStellarServer();
+    const account = await server.loadAccount(accountPublicKey);
+    
+    // Find balance for this specific asset
+    const balance = account.balances.find((bal: any) => 
+      bal.asset_type !== 'native' &&
+      bal.asset_code === assetCode &&
+      bal.asset_issuer === issuerPublicKey
+    );
+    
+    return balance ? parseFloat(balance.balance) : 0;
+  } catch (error) {
+    console.error('Error getting token balance:', error);
+    return 0;
+  }
+}
+
+/**
+ * Transfer tokens from one account to another
+ */
+export async function transferTokens(
+  fromSecretKey: string,
+  toPublicKey: string,
+  assetCode: string,
+  issuerPublicKey: string,
+  amount: string
+): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+  try {
+    const server = createStellarServer();
+    const fromKeypair = Keypair.fromSecret(fromSecretKey);
+    const fromAccount = await server.loadAccount(fromKeypair.publicKey());
+    
+    // Create the asset
+    const asset = new Asset(assetCode, issuerPublicKey);
+    
+    // Build transaction to transfer tokens
+    const transaction = new TransactionBuilder(fromAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: getNetworkPassphrase(),
+    })
+      .addOperation(Operation.payment({
+        destination: toPublicKey,
+        asset: asset,
+        amount: amount,
+      }))
+      .setTimeout(30)
+      .build();
+    
+    // Sign and submit transaction
+    transaction.sign(fromKeypair);
+    const result = await server.submitTransaction(transaction);
+    
+    return {
+      success: true,
+      transactionHash: result.hash
+    };
+  } catch (error) {
+    console.error('Error transferring tokens:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Buy tokens by sending XLM to the distributor and receiving tokens back
+ * This is a simple implementation - in production you'd want atomic swaps or DEX integration
+ */
+export async function buyTokensSimple(
+  fanSecretKey: string,
+  distributorPublicKey: string,
+  distributorSecretKey: string,
+  assetCode: string,
+  issuerPublicKey: string,
+  xlmAmount: string,
+  tokenAmount: string
+): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+  try {
+    const server = createStellarServer();
+    const fanKeypair = Keypair.fromSecret(fanSecretKey);
+    const distributorKeypair = Keypair.fromSecret(distributorSecretKey);
+    
+    // Step 1: Fan sends XLM to distributor
+    const fanAccount = await server.loadAccount(fanKeypair.publicKey());
+    const xlmTransaction = new TransactionBuilder(fanAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: getNetworkPassphrase(),
+    })
+      .addOperation(Operation.payment({
+        destination: distributorPublicKey,
+        asset: Asset.native(),
+        amount: xlmAmount,
+      }))
+      .setTimeout(30)
+      .build();
+    
+    xlmTransaction.sign(fanKeypair);
+    const xlmResult = await server.submitTransaction(xlmTransaction);
+    
+    // Step 2: Distributor sends tokens to fan
+    const distributorAccount = await server.loadAccount(distributorKeypair.publicKey());
+    const asset = new Asset(assetCode, issuerPublicKey);
+    
+    const tokenTransaction = new TransactionBuilder(distributorAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: getNetworkPassphrase(),
+    })
+      .addOperation(Operation.payment({
+        destination: fanKeypair.publicKey(),
+        asset: asset,
+        amount: tokenAmount,
+      }))
+      .setTimeout(30)
+      .build();
+    
+    tokenTransaction.sign(distributorKeypair);
+    const tokenResult = await server.submitTransaction(tokenTransaction);
+    
+    return {
+      success: true,
+      transactionHash: tokenResult.hash
+    };
+  } catch (error) {
+    console.error('Error buying tokens:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Create a sell offer on the Stellar DEX
+ */
+export async function createSellOffer(
+  sellerSecretKey: string,
+  sellingAssetCode: string,
+  sellingIssuer: string,
+  buyingAssetCode: string, // 'XLM' for native
+  buyingIssuer: string | null, // null for XLM
+  amount: string,
+  price: string
+): Promise<{ success: boolean; transactionHash?: string; error?: string }> {
+  try {
+    const server = createStellarServer();
+    const sellerKeypair = Keypair.fromSecret(sellerSecretKey);
+    const sellerAccount = await server.loadAccount(sellerKeypair.publicKey());
+    
+    // Create assets
+    const sellingAsset = new Asset(sellingAssetCode, sellingIssuer);
+    const buyingAsset = buyingIssuer ? new Asset(buyingAssetCode, buyingIssuer) : Asset.native();
+    
+    // Build transaction to create sell offer
+    const transaction = new TransactionBuilder(sellerAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: getNetworkPassphrase(),
+    })
+      .addOperation(Operation.manageSellOffer({
+        selling: sellingAsset,
+        buying: buyingAsset,
+        amount: amount,
+        price: price,
+      }))
+      .setTimeout(30)
+      .build();
+    
+    // Sign and submit transaction
+    transaction.sign(sellerKeypair);
+    const result = await server.submitTransaction(transaction);
+    
+    return {
+      success: true,
+      transactionHash: result.hash
+    };
+  } catch (error) {
+    console.error('Error creating sell offer:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 }

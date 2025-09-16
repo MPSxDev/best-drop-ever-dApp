@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/empty-state"
 import { TokenBuyDrawer } from "@/components/token-buy-drawer"
-import { Music, Users, DollarSign, TrendingUp } from "lucide-react"
+import { Music, Users, DollarSign, TrendingUp, Coins } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { Profile, ArtistToken } from "@/lib/types"
@@ -71,13 +71,13 @@ export default function ExplorePage() {
 
       // Load followers count for each artist
       const artistsWithData = await Promise.all(
-        (artistsData || []).map(async (artist) => {
+        (artistsData || []).map(async (artist: any) => {
           const { count: followersCount } = await supabase
             .from("follows")
             .select("*", { count: "exact" })
             .eq("following_id", artist.id)
 
-          const token = tokensData?.find((t) => t.artist_id === artist.id)
+          const token = tokensData?.find((t: any) => t.artist_id === artist.id)
 
           return {
             ...artist,
@@ -244,6 +244,10 @@ export default function ExplorePage() {
                                 <h3 className="font-semibold text-sm">{token.display_name}</h3>
                                 <Badge variant="secondary" className="text-xs">
                                   {token.symbol}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 bg-blue-50">
+                                  <Coins className="h-3 w-3 mr-1" />
+                                  Stellar
                                 </Badge>
                               </div>
                               <p className="text-xs text-muted-foreground">by {token.artist.display_name}</p>

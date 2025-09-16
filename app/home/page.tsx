@@ -35,6 +35,11 @@ export default function HomePage() {
           return
         }
 
+        // Ensure wallet exists (best-effort, non-blocking)
+        try {
+          await fetch("/api/wallet/ensure", { method: "POST" })
+        } catch (_) {}
+
         // Get user profile
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
@@ -75,6 +80,23 @@ export default function HomePage() {
 
     loadData()
   }, [supabase])
+
+  // Ensure artist token for DJs on first login (best-effort, once per profile)
+  useEffect(() => {
+    if (!profile) return
+    if (profile.role !== "DJ") return
+    try {
+      const key = `artist-token-ensured:${profile.id}`
+      if (typeof window !== "undefined" && localStorage.getItem(key)) return
+      fetch("/api/artist/ensure-token", { method: "POST" })
+        .catch(() => {})
+        .finally(() => {
+          try {
+            if (typeof window !== "undefined") localStorage.setItem(key, "1")
+          } catch {}
+        })
+    } catch {}
+  }, [profile])
 
   const handlePostCreated = () => {
     // Reload posts after creating a new one

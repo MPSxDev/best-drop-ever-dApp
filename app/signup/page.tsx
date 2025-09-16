@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { createStellarWallet } from "@/app/actions/wallet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -77,6 +78,20 @@ export default function SignupPage() {
           // Don't throw here as the user is already created
         } else {
           console.log("Profile created successfully for user:", data.user.id)
+        }
+
+        // Create Stellar wallet for the new user
+        try {
+          const walletResult = await createStellarWallet(data.user.id)
+          if (walletResult.error) {
+            console.warn("Failed to create Stellar wallet:", walletResult.error)
+            // Don't fail the signup if wallet creation fails
+          } else {
+            console.log("Stellar wallet created successfully:", walletResult.data)
+          }
+        } catch (walletError) {
+          console.warn("Error creating Stellar wallet:", walletError)
+          // Don't fail the signup if wallet creation fails
         }
 
         // Create some initial data based on role
