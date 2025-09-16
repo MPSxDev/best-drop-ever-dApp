@@ -14,7 +14,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50 pt-[env(safe-area-inset-top)]">
       <div className="flex items-center justify-between py-3 px-4">
-        <Image src="/dropsland-logo.png" alt="Dropsland" width={60} height={16} className="h-4 w-auto" priority />
+        <Image src="/best_drops_ever_logo.png" alt="Dropsland" width={60} height={16} className="h-4 w-auto" priority />
 
         <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
           <DialogTrigger asChild>
