@@ -1,4 +1,4 @@
--- Complete database setup with auth users for Dropsland dApp
+-- Complete database setup with auth users for BestDropsever dApp
 -- This version creates actual auth users for a more complete setup
 
 -- Enable UUID extension if not already enabled

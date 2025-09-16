@@ -44,7 +44,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Dropsland</h1>
+          <h1 className="text-3xl font-bold tracking-tight">BestDropsEver</h1>
           <p className="text-muted-foreground mt-2">Welcome back</p>
         </div>
 

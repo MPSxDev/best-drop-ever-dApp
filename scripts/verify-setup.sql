@@ -1,4 +1,4 @@
--- Verification script for Dropsland dApp database setup
+-- Verification script for BestDropsever dApp database setup
 -- Run this after applying migrations to verify everything is working correctly
 
 -- 1. Check that all required tables exist

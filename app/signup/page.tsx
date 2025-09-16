@@ -67,7 +67,7 @@ export default function SignupPage() {
           handle: username,
           display_name: displayName,
           role: role,
-          bio: role === "DJ" ? "New DJ on Dropsland" : "Music lover and supporter",
+          bio: role === "DJ" ? "New DJ on BestDropsever" : "Music lover and supporter",
           avatar_url: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -136,7 +136,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Dropsland</h1>
+          <h1 className="text-3xl font-bold tracking-tight">BestDropsever</h1>
           <p className="text-muted-foreground mt-2">Join the community</p>
         </div>
 

@@ -1,4 +1,4 @@
--- Seed data for Dropsland dApp
+-- Seed data for BestDropsever dApp
 -- This script populates the database with sample data for testing
 
 -- Insert sample profiles

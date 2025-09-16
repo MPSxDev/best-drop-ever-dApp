@@ -117,6 +117,64 @@
   --color-sidebar-ring: var(--sidebar-ring);
 } /* Added missing closing brace for @theme inline block */
 
+/* Custom animations for music app */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-30px) rotate(120deg); }
+  66% { transform: translateY(-15px) rotate(240deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(147, 51, 234, 0.1);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6), 0 0 80px rgba(147, 51, 234, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes music-wave {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.5); }
+}
+
+@keyframes drift {
+  0% { transform: translateX(-100px) translateY(-100px) rotate(0deg); }
+  25% { transform: translateX(100px) translateY(-50px) rotate(90deg); }
+  50% { transform: translateX(50px) translateY(100px) rotate(180deg); }
+  75% { transform: translateX(-50px) translateY(50px) rotate(270deg); }
+  100% { transform: translateX(-100px) translateY(-100px) rotate(360deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-gradient {
+  animation: gradient-shift 8s ease infinite;
+  background-size: 300% 300%;
+}
+
+.animate-music-wave {
+  animation: music-wave 1.5s ease-in-out infinite;
+}
+
+.animate-drift {
+  animation: drift 20s linear infinite;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -1,6 +1,6 @@
-# Dropsland dApp Database Setup
+# BestDropsever dApp Database Setup
 
-This directory contains all the SQL migrations and setup scripts for the Dropsland dApp database.
+This directory contains all the SQL migrations and setup scripts for the BestDropsever dApp database.
 
 ## 📁 Files Overview
 

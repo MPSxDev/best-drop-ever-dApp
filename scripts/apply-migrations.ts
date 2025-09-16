@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 /**
- * Migration script for Dropsland dApp
+ * Migration script for BestDropsever dApp
  * This script applies all database migrations in the correct order
  */
 
@@ -11,7 +11,7 @@ import { join } from 'path';
 // Read the complete setup script
 const setupScript = readFileSync(join(__dirname, 'setup-database.sql'), 'utf8');
 
-console.log('🚀 Starting Dropsland dApp database setup...');
+console.log('🚀 Starting BestDropsever dApp database setup...');
 console.log('📋 This script will:');
 console.log('   1. Create all necessary tables');
 console.log('   2. Set up Row Level Security policies');

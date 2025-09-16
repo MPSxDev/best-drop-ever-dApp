@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Dropsland",
+  title: "BestDropsever",
   description: "Social platform for DJs and fans with token trading",
   generator: "v0.app",
 }

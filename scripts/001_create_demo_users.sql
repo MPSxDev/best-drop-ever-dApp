@@ -1,4 +1,4 @@
--- Create demo users for the Dropsland app
+-- Create demo users for the BestDropsever app
 -- Note: These users will need to be created through Supabase Auth API
 -- This script documents the intended demo users
 

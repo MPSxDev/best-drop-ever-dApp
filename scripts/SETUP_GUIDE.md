@@ -1,7 +1,7 @@
-# 🚀 Dropsland dApp Database Setup Guide
+# 🚀 BestDropsever dApp Database Setup Guide
 
 ## Overview
-This guide will help you set up the complete database schema for the Dropsland dApp using Supabase. The database includes user profiles, social features, token economy, rewards system, and notifications.
+This guide will help you set up the complete database schema for the BestDropsever dApp using Supabase. The database includes user profiles, social features, token economy, rewards system, and notifications.
 
 ## 📋 Prerequisites
 
@@ -262,4 +262,4 @@ If you encounter issues:
 
 ---
 
-**🎉 Congratulations!** Your Dropsland dApp database is now ready for development!
+**🎉 Congratulations!** Your BestDropsever dApp database is now ready for development!

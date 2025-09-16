@@ -1,4 +1,4 @@
-# Stellar Wallet Setup for Dropsland dApp
+# Stellar Wallet Setup for BestDropsever dApp
 
 This document explains how to set up invisible Stellar wallets for users during signup.
 

@@ -1,4 +1,4 @@
--- Complete database setup script for Dropsland dApp
+-- Complete database setup script for BestDropsever dApp
 -- This script combines all migrations in the correct order
 
 -- Enable UUID extension if not already enabled

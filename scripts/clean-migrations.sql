@@ -1,4 +1,4 @@
--- Clean migration script for Dropsland dApp
+-- Clean migration script for BestDropsever dApp
 -- This script removes any existing data and tables for a fresh start
 
 -- WARNING: This will delete all existing data!
