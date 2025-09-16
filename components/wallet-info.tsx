@@ -130,14 +130,6 @@ export function WalletInfo({ userId }: WalletInfoProps) {
             </Badge>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Account Status</span>
-              <Badge variant={balance?.accountExists ? 'default' : 'destructive'}>
-                {balance?.accountExists ? 'Active' : 'Not Funded'}
-              </Badge>
-            </div>
-          </div>
 
           <div className="space-y-2">
             <span className="text-sm font-medium">Public Key</span>
@@ -183,14 +175,6 @@ export function WalletInfo({ userId }: WalletInfoProps) {
           </div>
         </div>
 
-        {wallet.network === 'testnet' && !balance?.accountExists && (
-          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>Testnet Account:</strong> Your account needs to be funded to perform transactions. 
-              This usually happens automatically during signup.
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   )
