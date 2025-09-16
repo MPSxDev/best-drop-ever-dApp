@@ -242,10 +242,10 @@ export function TokenBuyDrawer({ token, currentProfile, onPurchaseComplete, trig
                 <DollarSign className="h-4 w-4" />
                 <span>Purchase</span>
               </TabsTrigger>
-              <TabsTrigger value="stellar" className="flex items-center space-x-2">
+              {/* <TabsTrigger value="stellar" className="flex items-center space-x-2">
                 <Coins className="h-4 w-4" />
                 <span>Stellar Blockchain</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             {/* Demo Purchase Tab */}
